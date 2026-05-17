@@ -1,0 +1,50 @@
+# ============================================================
+# Harris + LK Single Object Tracker — Configuration
+# ============================================================
+
+input:
+  source: "C:\\Users\\pakistan\\OneDrive\\Desktop\\cv_project\\video\\test_2.mp4"
+  start_frame: 0
+  bbox: [2112, 1728, 216, 306]  # [x, y, width, height]
+
+output:
+  save_video: true
+  show_fps: true
+  show_trails: true
+  trail_length: 60
+
+memory:
+  max_trail_length: 60
+  max_inactive_frames: 45
+
+harris:
+  max_corners: 400
+  quality_level: 0.005
+  min_distance: 3
+  block_size: 5
+  k: 0.04
+  redetect_threshold: 0.25
+
+lucas_kanade:
+  win_size: [41, 41]
+  max_level: 5
+  max_iter: 30
+  epsilon: 0.01
+  min_eig_threshold: 0.001
+  fb_error_threshold: 3.5
+
+tracking:
+  min_points_per_object: 4
+  bbox_smoothing: 0.0
+  redetect_interval: 60
+
+preprocessing:
+  clahe_enable: true
+  clahe_clip_limit: 3.5
+  clahe_tile_size: [4, 4]
+
+metrics:
+  log_interval: 30
+
+cli:
+  default_config: "config.yaml"
