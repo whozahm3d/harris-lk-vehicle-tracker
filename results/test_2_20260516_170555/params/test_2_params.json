@@ -1,0 +1,24 @@
+{
+    "test": "test_2",
+    "timestamp": "2026-05-16 17:18:28",
+    "harris": {
+        "max_corners": 300,
+        "quality_level": 0.01,
+        "min_distance": 5
+    },
+    "lucas_kanade": {
+        "win_size": [
+            31,
+            31
+        ],
+        "fb_error_threshold": 3.5
+    },
+    "tracking": {
+        "min_points_per_object": 4,
+        "redetect_interval": 60,
+        "redetect_threshold": 0.25
+    },
+    "preprocessing": {
+        "clahe_enable": true
+    }
+}

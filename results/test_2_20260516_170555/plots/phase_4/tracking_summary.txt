@@ -1,0 +1,12 @@
+=============================================
+         TRACKING PERFORMANCE SUMMARY
+=============================================
+  Total frames processed : 529
+  Avg corners/frame      : 201.0
+  Min corners in a frame : 201
+  Max corners in a frame : 201
+  Frames above threshold : 529/529
+  Tracker stability      : 100.0%
+  Redetect interval      : every 60 frames
+  FB error threshold     : 3.5 px
+=============================================

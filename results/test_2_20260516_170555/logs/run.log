@@ -1,0 +1,25 @@
+2026-05-16 17:05:55  [INFO    ]  Starting Harris + LK single-object tracker.
+2026-05-16 17:05:56  [INFO    ]  Video: 3840x2160 @ 30.0 fps
+2026-05-16 17:05:57  [INFO    ]  Frame 0 selected as start frame.
+2026-05-16 17:05:57  [INFO    ]  Selected bbox (full res): (2121, 1731, 210, 312)
+2026-05-16 17:05:57  [DEBUG   ]  [Tracker 1] Initialized with 137 points.
+2026-05-16 17:05:58  [INFO    ]  Output: results\test_2_20260516_170555\videos\test_2_tracked.mp4
+2026-05-16 17:06:21  [INFO    ]  Frame 30 | Points: 137
+2026-05-16 17:06:41  [INFO    ]  Frame 60 | Points: 137
+2026-05-16 17:07:16  [INFO    ]  Frame 90 | Points: 137
+2026-05-16 17:07:54  [INFO    ]  Frame 120 | Points: 137
+2026-05-16 17:08:21  [INFO    ]  Frame 150 | Points: 137
+2026-05-16 17:08:47  [INFO    ]  Frame 180 | Points: 137
+2026-05-16 17:09:09  [INFO    ]  Frame 210 | Points: 137
+2026-05-16 17:09:30  [INFO    ]  Frame 240 | Points: 137
+2026-05-16 17:09:51  [INFO    ]  Frame 270 | Points: 137
+2026-05-16 17:10:12  [INFO    ]  Frame 300 | Points: 137
+2026-05-16 17:10:33  [INFO    ]  Frame 330 | Points: 137
+2026-05-16 17:10:55  [INFO    ]  Frame 360 | Points: 137
+2026-05-16 17:11:17  [INFO    ]  Frame 390 | Points: 137
+2026-05-16 17:11:37  [INFO    ]  Frame 420 | Points: 137
+2026-05-16 17:12:00  [INFO    ]  Frame 450 | Points: 137
+2026-05-16 17:12:21  [INFO    ]  Frame 480 | Points: 137
+2026-05-16 17:12:44  [INFO    ]  Frame 510 | Points: 137
+2026-05-16 17:12:57  [INFO    ]  Done. Processed 529 frames.
+2026-05-16 17:12:57  [INFO    ]  Output saved to: results\test_2_20260516_170555\videos\test_2_tracked.mp4
