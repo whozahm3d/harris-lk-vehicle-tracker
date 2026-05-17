@@ -1,0 +1,9 @@
+# Test 1 — Tracked Output
+
+Tracked output for the drone footage sequence (280 frames @ 24 fps, 3840×2160).
+
+The silver car roof provides sparse Harris corners (~67 at initialisation). The velocity-guided
+background filter suppresses competing road-marking corners and stabilises tracking by frame 90.
+100% tracker stability maintained across all 280 frames.
+
+📹 [Watch tracked output video](https://drive.google.com/file/d/1EheOdcVkypPqcQ7VYE4Da-vSjgtPNRHZ/view?usp=drive_link)
