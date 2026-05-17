@@ -43,7 +43,11 @@ The design deliberately avoids deep learning and Kalman filtering to demonstrate
 
 ## Demo
 
-> The `results/` directory is excluded from this repository due to large file sizes. All images below are generated automatically when you run the pipeline. Paths are valid after your first run.
+> All plots, metrics, logs, and parameter snapshots inside `results/` are committed to this repository and render correctly on GitHub. Only the annotated output videos (`*_tracked.mp4`) are excluded from the repo due to file size — they are listed in `.gitignore` via the `*.mp4` rule. To fix this and commit the videos too, remove or comment out the `*.mp4` line in `.gitignore`:
+>
+> ```gitignore
+> # *.mp4   ← comment this out to allow tracked output videos to be committed
+> ```
 
 ---
 
@@ -210,7 +214,8 @@ harris-lk-vehicle-tracker/
 ├── video/                       # Place test videos here — excluded from repo (.gitignore)
 │   └── test_1 and test_2         # Placeholder describing the original test sequences
 │
-├── results/                      # Auto-generated on every run — excluded from repo (.gitignore)
+├── results/                      # Auto-generated on every run — plots, metrics, logs, and params committed
+│   └── */videos/*_tracked.mp4    # ⚠ Tracked output videos excluded from repo (*.mp4 in .gitignore)
 │
 ├── report/
 │   └── cv_project_tracking_report.pdf
