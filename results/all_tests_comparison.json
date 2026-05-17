@@ -1,0 +1,18 @@
+[
+    {
+        "test": "test_1",
+        "timestamp": "2026-05-16 17:31:47",
+        "total_frames": 280,
+        "avg_points": 42.0,
+        "min_points": 37,
+        "max_points": 63
+    },
+    {
+        "test": "test_2",
+        "timestamp": "2026-05-16 17:18:16",
+        "total_frames": 529,
+        "avg_points": 137.0,
+        "min_points": 137,
+        "max_points": 137
+    }
+]

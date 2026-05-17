@@ -1,0 +1,17 @@
+2026-05-16 17:39:36  [INFO    ]  Starting Harris + LK single-object tracker.
+2026-05-16 17:39:37  [INFO    ]  Video: 3840x2160 @ 24.0 fps
+2026-05-16 17:39:38  [INFO    ]  Frame 0 selected as start frame.
+2026-05-16 17:39:38  [INFO    ]  Selected bbox (full res): (600, 951, 444, 180)
+2026-05-16 17:39:39  [DEBUG   ]  [Tracker 1] Initialized with 67 points.
+2026-05-16 17:39:40  [INFO    ]  Output: results\test_1_20260516_173936\videos\test_1_tracked.mp4
+2026-05-16 17:40:01  [INFO    ]  Frame 30 | Points: 64
+2026-05-16 17:40:19  [INFO    ]  Frame 60 | Points: 48
+2026-05-16 17:40:36  [INFO    ]  Frame 90 | Points: 37
+2026-05-16 17:40:54  [INFO    ]  Frame 120 | Points: 37
+2026-05-16 17:41:12  [INFO    ]  Frame 150 | Points: 37
+2026-05-16 17:41:30  [INFO    ]  Frame 180 | Points: 37
+2026-05-16 17:41:48  [INFO    ]  Frame 210 | Points: 36
+2026-05-16 17:42:06  [INFO    ]  Frame 240 | Points: 36
+2026-05-16 17:42:25  [INFO    ]  Frame 270 | Points: 36
+2026-05-16 17:42:31  [INFO    ]  Done. Processed 280 frames.
+2026-05-16 17:42:31  [INFO    ]  Output saved to: results\test_1_20260516_173936\videos\test_1_tracked.mp4
