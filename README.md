@@ -20,104 +20,7 @@ The design deliberately avoids deep learning and Kalman filtering to demonstrate
 
 **Validated on two 4K test sequences — 100% tracker stability on both, across 280 and 529 frames respectively. Zero manual interventions. Zero restarts.**
 
----
-
-## Table of Contents
-
-- [Demo](#demo)
-- [How It Works](#how-it-works)
-- [Key Engineering Decisions](#key-engineering-decisions)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration Reference](#configuration-reference)
-- [Results](#results)
-- [Tested Environment](#tested-environment)
-- [Troubleshooting](#troubleshooting)
-- [Known Limitations](#known-limitations)
-- [Academic Context](#academic-context)
-- [Citation](#citation)
-- [License](#license)
-
----
-
-## Demo
-
-> All plots, metrics, logs, and parameter snapshots inside `results/` are committed to this repository and render correctly on GitHub. Only the annotated output videos (`*_tracked.mp4`) are excluded from the repo due to file size — they are listed in `.gitignore` via the `*.mp4` rule. To fix this and commit the videos too, remove or comment out the `*.mp4` line in `.gitignore`:
->
-> ```gitignore
-> # *.mp4   ← comment this out to allow tracked output videos to be committed
-> ```
-
----
-
-### Test 1 — Top-Down Drone Footage (4K · 24 fps · 280 frames)
-
-Tracking a silver car on a road viewed directly from overhead. The uniform car roof produces sparse features (~66 corners at initialisation) competing with strong stationary road-marking corners. The velocity-guided background filter suppresses road noise and holds tracking stable across the full sequence.
-
-![Test 1 Tracking Snapshots](results/test_1_20260516_173936/plots/integration_snapshots.png)
-
----
-
-### Test 2 — Oblique Drone Surveillance (4K · 30 fps · 529 frames)
-
-Tracking a vehicle across a rural road from an oblique angle. The perspective exposes the car's side panels, windows, and wheel arches — yielding 201 stable corner points that remain constant throughout all 529 frames without a single redetection event.
-
-![Test 2 Tracking Snapshots](results/test_2_20260516_170555/plots/integration_snapshots.png)
-
----
-
-### Harris Corner Detection at Initialisation
-
-66 Harris corners detected inside the manually drawn bounding box on frame 0. Points cluster on the car's structural edges, roof panel boundaries, and window frames — exactly where second-order gradient information is richest.
-
-![Harris Corners Detected](results/test_1_20260516_173936/plots/phase_2/harris_corners.png)
-
----
-
-### LK Optical Flow — Frame-to-Frame Tracking
-
-All 66 corners tracked successfully on the first inter-frame pass. Yellow dots show tracked feature locations; the green bounding box is updated via the median displacement vector of all surviving points.
-
-![LK Optical Flow](results/test_1_20260516_173936/plots/phase_3/lk_tracking.png)
-
----
-
-### Forward-Backward Error Distribution
-
-Distribution of round-trip errors across all tracked points on a representative frame. Nearly all points cluster at ~0 px — well below the 3.5 px rejection threshold (red dashed line). Only points exceeding this threshold are discarded before the displacement median is computed.
-
-![FB Error Distribution](results/test_1_20260516_173936/plots/phase_3/fb_error_distribution.png)
-
----
-
-### Harris Corner Survival — Test 1 (280 frames)
-
-Point count across the full 280-frame sequence. The tracker never drops below the 4-point minimum threshold (red dashed line). Mean: 48.0 corners/frame. Stepped drops correspond to forward-backward filtering events; redetection fires at the 25% survival threshold when needed.
-
-![Point Survival](results/test_1_20260516_173936/plots/phase_4/point_survival.png)
-
----
-
-### Periodic Tracking Snapshots — Test 1
-
-Bounding box overlaid on the vehicle at every 60-frame interval across the full sequence. The box remains tightly aligned with the car through straight road sections, a right-angle intersection turn, and continued travel.
-
-![Tracking Snapshots Every 60 Frames](results/test_1_20260516_173936/plots/phase_4/snapshots.png)
-
----
-
-### Object Centroid Trajectory — Test 1
-
-Full centroid path across 280 frames, colour-mapped by frame index (purple → yellow). The trajectory accurately traces the car's actual route: straight road section, right-angle turn at intersection, continued travel on the new road.
-
-![Centroid Trajectory](results/test_1_20260516_173936/plots/phase_4/centroid_trajectory.png)
-
----
-
-## How It Works
-
-The tracker runs a strict 6-step pipeline per frame:
+### Pipeline at a Glance
 
 | Step | Operation | Detail |
 |------|-----------|--------|
@@ -132,9 +35,26 @@ This loop repeats for every frame until the sequence ends, the user presses `Q`,
 
 ---
 
+## Table of Contents
+
+- [Key Engineering Decisions](#key-engineering-decisions)
+- [Results & Demo](#results--demo)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration Reference](#configuration-reference)
+- [Tested Environment](#tested-environment)
+- [Troubleshooting](#troubleshooting)
+- [Known Limitations](#known-limitations)
+- [Academic Context](#academic-context)
+- [Citation](#citation)
+- [License](#license)
+
+---
+
 ## Key Engineering Decisions
 
-These are the mechanisms that make the difference between a tracker that works on clean test cases and one that holds up on real 4K footage across 500+ frames.
+These are the mechanisms that separate this tracker from a naive Harris + LK implementation — each one exists to solve a specific failure mode observed on real 4K footage.
 
 ### 1. Velocity-Guided Background Filter
 
@@ -144,8 +64,6 @@ These are the mechanisms that make the difference between a tracker that works o
 
 **Result:** Background corner contamination is eliminated without any per-video threshold tuning.
 
----
-
 ### 2. Survival-Based Redetection
 
 **Problem:** Scheduled redetection on a fixed interval wastes computation when the point cloud is healthy and fires too late when points degrade suddenly due to texture change or partial occlusion.
@@ -153,8 +71,6 @@ These are the mechanisms that make the difference between a tracker that works o
 **Solution:** Redetection triggers only when surviving point count falls below 25% of the initial count detected at frame 0. Harris corners are re-detected inside the current bounding box estimate, replenishing the feature pool exactly when needed.
 
 **Result:** The tracker adapts to texture changes and partial occlusion without a fixed schedule — and never fires at all when unnecessary (as in Test 2, where no redetection triggered across all 529 frames).
-
----
 
 ### 3. Velocity Prediction Fallback
 
@@ -164,8 +80,6 @@ These are the mechanisms that make the difference between a tracker that works o
 
 **Result:** The tracker follows the vehicle to the frame boundary rather than stalling at the last observed position — critical for exit-phase sequences like Test 2.
 
----
-
 ### 4. CLAHE Preprocessing
 
 **Problem:** 4K drone footage frequently has uneven illumination — shadows, sun glare, and exposure variation. This degrades Harris detection in dark regions and LK convergence in overexposed areas.
@@ -173,6 +87,86 @@ These are the mechanisms that make the difference between a tracker that works o
 **Solution:** Contrast Limited Adaptive Histogram Equalisation (CLAHE) is applied to the grayscale frame before both Harris detection and LK tracking. Parameters: clip limit 3.5, tile grid 4×4.
 
 **Result:** Corner detection and flow estimation are more uniform across lighting conditions without globally amplifying sensor noise.
+
+---
+
+## Results & Demo
+
+> All plots, metrics, logs, and parameter snapshots inside `results/` are committed to this repository and render correctly on GitHub. Only the annotated output videos (`*_tracked.mp4`) are excluded from the repo due to file size — they are listed in `.gitignore` via the `*.mp4` rule. To commit the videos too, comment out that line in `.gitignore`:
+>
+> ```gitignore
+> # *.mp4   ← comment this out to allow tracked output videos to be committed
+> ```
+
+### Test 1 — Top-Down Drone Footage
+
+**Sequence:** 3840×2160 · 24 fps · 280 frames | **Challenge:** Uniform car roof + stationary road-marking corners competing with vehicle features | **Fix applied:** Velocity-guided background filter
+
+Tracking a silver car on a road viewed directly from overhead. With only ~66 corners available on the car's roof, the velocity filter is what keeps the bbox locked onto the vehicle rather than drifting to road markings.
+
+![Test 1 — Tracking Output](results/test_1_20260516_173936/plots/integration_snapshots.png)
+
+**Diagnostic — Harris corners at initialisation and corner survival across 280 frames:**
+
+![Harris Corners at Init](results/test_1_20260516_173936/plots/phase_2/harris_corners.png)
+
+![Corner Survival — Test 1](results/test_1_20260516_173936/plots/phase_4/point_survival.png)
+
+Point count across the full sequence — never drops below the 4-point minimum threshold (red dashed line). Mean: 48.0 corners/frame. Stepped drops are forward-backward filtering events; redetection fires at 25% survival when needed.
+
+**Centroid trajectory across all 280 frames (purple = early frames → yellow = late frames):**
+
+![Centroid Trajectory — Test 1](results/test_1_20260516_173936/plots/phase_4/centroid_trajectory.png)
+
+The trajectory maps the car's actual route: straight road section → right-angle intersection turn → continued travel. No position jumps, no drift.
+
+| Metric | Value |
+|--------|-------|
+| Total Frames Processed | 280 / 280 (100%) |
+| Avg Corners / Frame | 48.0 |
+| Min / Max Corners | 41 / 66 |
+| Tracker Stability | ✅ 100% |
+| Redetection Events | Multiple (survival-triggered, all recovered) |
+| Processing Rate | ~1.63 fps (CPU only) |
+
+---
+
+### Test 2 — Oblique Drone Surveillance
+
+**Sequence:** 3840×2160 · 30 fps · 529 frames | **Challenge:** Vehicle exits frame with degrading point visibility | **Fix applied:** Velocity prediction + exit-phase threshold
+
+Tracking a vehicle across a rural road from an oblique angle. The perspective reveals the car's side panels, windows, and wheel arches — yielding 201 stable corners sustained across the entire 529-frame sequence without a single redetection event.
+
+![Test 2 — Tracking Output](results/test_2_20260516_170555/plots/integration_snapshots.png)
+
+| Metric | Value |
+|--------|-------|
+| Total Frames Processed | 529 / 529 (100%) |
+| Avg Corners / Frame | 201.0 |
+| Min / Max Corners | 201 / 201 |
+| Tracker Stability | ✅ 100% |
+| Redetection Events | None |
+| Processing Rate | ~1.25 fps (CPU only) |
+
+Point count held constant at 201 across every frame — no redetection triggered, no velocity fallback invoked. A clean, uninterrupted optical flow sequence from start to finish.
+
+---
+
+### Algorithm Diagnostics
+
+**LK optical flow — frame-to-frame tracking (Test 1, frame 0→1):**
+
+All 66 corners tracked on the first inter-frame pass. Yellow dots show tracked feature locations; the green bbox shifts by the median displacement of surviving points.
+
+![LK Optical Flow](results/test_1_20260516_173936/plots/phase_3/lk_tracking.png)
+
+**Forward-backward error distribution — nearly all points cluster at ~0 px, well below the 3.5 px rejection threshold:**
+
+![FB Error Distribution](results/test_1_20260516_173936/plots/phase_3/fb_error_distribution.png)
+
+**Periodic snapshots every 60 frames — bbox stays aligned through turns and background changes:**
+
+![Periodic Snapshots](results/test_1_20260516_173936/plots/phase_4/snapshots.png)
 
 ---
 
@@ -211,7 +205,7 @@ harris-lk-vehicle-tracker/
 │   ├── phase4_results.ipynb          # Evaluation metrics, plots, analysis
 │   └── phase5_integration.ipynb      # Full end-to-end pipeline — primary entry point
 │
-├── video/                       # Place test videos here — excluded from repo (.gitignore)
+├── videos/                       # Place test videos here — excluded from repo (.gitignore)
 │   └── test_1 and test_2         # Placeholder describing the original test sequences
 │
 ├── results/                      # Auto-generated on every run — plots, metrics, logs, and params committed
@@ -272,14 +266,12 @@ Required for H.264 MP4 output via OpenCV on Windows. Download `openh264-1.8.0-wi
 
 **5. Add your test video**
 
-Place your video file inside the `videos/` folder. The folder already exists in the repository with a placeholder file (`test_1 and test_2`) describing the original test sequences. The actual video files are excluded due to size.
+Place your video file inside the `videos/` folder. The folder already exists with a placeholder file (`test_1 and test_2`) describing the original test sequences — the actual video files are excluded due to size.
 
 ```
 videos/
 └── your_video.mp4
 ```
-
-To reproduce the original results, use any 4K vehicle footage and set the correct `source`, `start_frame`, and `bbox` in `config.yaml`.
 
 ---
 
@@ -402,35 +394,6 @@ results/
 
 ---
 
-## Results
-
-Evaluated on two 4K test sequences. Both runs achieved full tracker stability — the bounding box never lost the target vehicle and required no manual intervention at any point.
-
-| Metric | Test 1 — Top-Down Drone | Test 2 — Oblique Drone |
-|--------|------------------------|------------------------|
-| Resolution | 3840 × 2160 | 3840 × 2160 |
-| Frame Rate | 24 fps | 30 fps |
-| Total Frames Processed | 280 / 280 | 529 / 529 |
-| Initial Corners | 66 | 137 |
-| Avg Corners / Frame | 48.0 | 201.0 |
-| Min Corners / Frame | 41 | 201 |
-| Max Corners / Frame | 66 | 201 |
-| Frames Above Min Threshold | 280 / 280 (100%) | 529 / 529 (100%) |
-| Tracker Stability | ✅ 100% | ✅ 100% |
-| Redetection Events | Multiple (survival-triggered) | None |
-| Processing Rate | ~1.63 fps | ~1.25 fps |
-| Hardware | CPU only | CPU only |
-| Primary Challenge | Background corner competition | Frame-exit point degradation |
-| Key Mechanism Applied | Velocity-guided background filter | Velocity prediction + exit threshold |
-
-> Metrics sourced directly from `results/*/plots/phase_4/tracking_summary.txt` and `results/*/metrics/*.json` generated during the evaluated runs.
-
-**Test 1** — Top-down drone view of a silver car. The uniform roof surface produces limited texture diversity (~66 corners at init). Stationary road-marking corners compete with the vehicle throughout the sequence. The velocity-guided filter suppresses them across all 280 frames. Multiple survival-triggered redetection events occurred and were handled correctly without any drift.
-
-**Test 2** — Oblique drone view across 529 frames. The perspective angle reveals the car's side panels, windows, and wheel arches, producing 201 stable corners. Point count remained constant at 201 across every single frame — no redetection triggered, no velocity fallback invoked. A clean, uninterrupted optical flow sequence from start to finish.
-
----
-
 ## Tested Environment
 
 | Component | Version |
@@ -461,8 +424,6 @@ https://github.com/cisco/openh264/releases
 Place it in the project root alongside main.py.
 ```
 
----
-
 **`Cannot open video` error on launch**
 
 The path in `config.yaml` is wrong or the file does not exist at that location.
@@ -478,42 +439,26 @@ source: "C:/Users/yourname/harris-lk-vehicle-tracker/videos/test_1.mp4"
 source: "C:\Users\yourname\videos\test_1.mp4"
 ```
 
----
-
 **`AttributeError: module 'ctypes' has no attribute 'windll'`**
 
 You are running on Linux or macOS. The DPI awareness call in `main.py` is Windows-only and is already wrapped in a `try/except` block — this error should not surface in normal usage. If it does, verify you are running Python 3.12 and have not modified `main.py`.
 
----
-
 **Bounding box drifts off the vehicle during a sharp turn**
 
-The bbox is axis-aligned and fixed in size. During a sharp turn, the vehicle's silhouette rotates out of alignment, degrading displacement estimation. To improve:
-
-- Lower `harris.quality_level` from `0.005` to `0.003` to detect more corners on the vehicle body
-- Increase `harris.max_corners` from `400` to `600` for denser initial coverage
-- The drift will self-correct on straight sections as the point cloud re-stabilises
-
----
+The bbox is axis-aligned and fixed in size. During a sharp turn, the vehicle's silhouette rotates out of alignment, degrading displacement estimation. To improve: lower `harris.quality_level` from `0.005` to `0.003` to detect more corners on the vehicle body, and increase `harris.max_corners` from `400` to `600` for denser initial coverage. Drift will self-correct on straight sections as the point cloud re-stabilises.
 
 **Tracker deactivates before the vehicle exits frame**
 
-The velocity prediction fallback sustains tracking for `memory.max_inactive_frames` frames (default: 45). If your vehicle passes through a longer occlusion, increase this value:
+Increase `memory.max_inactive_frames` in `config.yaml`:
 
 ```yaml
 memory:
   max_inactive_frames: 90   # ~3 seconds at 30 fps
 ```
 
----
-
 **Processing is too slow**
 
-Expected. The system processes 4K footage at ~1.3–1.6 fps on CPU. To increase throughput:
-
-- Downscale the input video before running (e.g. to 1920×1080)
-- Reduce `lucas_kanade.max_level` from `5` to `3` — cuts pyramid computation at the cost of handling smaller maximum inter-frame displacements
-- Reduce `harris.max_corners` to limit the active point pool size
+Expected — the system processes 4K footage at ~1.3–1.6 fps on CPU. To increase throughput: downscale the input video before running (e.g. to 1920×1080), or reduce `lucas_kanade.max_level` from `5` to `3` to cut pyramid computation at the cost of handling smaller maximum inter-frame displacements.
 
 ---
 
@@ -525,13 +470,13 @@ Expected. The system processes 4K footage at ~1.3–1.6 fps on CPU. To increase 
 - **CPU-only throughput** — ~1.3–1.6 fps on 4K input. Not suitable for real-time deployment without resolution downscaling or GPU-accelerated optical flow (e.g. `cv2.cuda.SparsePyrLKOpticalFlow`).
 - **Fixed occlusion budget** — velocity prediction sustains tracking for up to 45 frames (~1.5 s at 30 fps). Longer full occlusions cause tracker deactivation.
 - **Axis-aligned bounding box** — no rotation support. Vehicles turning sharply will have bbox misalignment proportional to the turn angle.
-- **Windows-primary** — tested and validated on Windows 11 only. The `ctypes.windll` DPI fix is already guarded, but H.264 codec availability on Linux/macOS may differ.
+- **Windows-primary** — tested and validated on Windows 11 only. H.264 codec availability on Linux/macOS may differ.
 
 ---
 
 ## Academic Context
 
-Developed as the final project for the Fundamentals of Computer Vision course.
+Developed as the final project for the Fundamentals of Computer Vision course at FAST-NUCES Lahore. The full technical report covering algorithm design rationale, parameter analysis, and per-test evaluation is available in [`report/cv_project_tracking_report.pdf`](report/cv_project_tracking_report.pdf).
 
 | Field | Detail |
 |-------|--------|
@@ -542,8 +487,6 @@ Developed as the final project for the Fundamentals of Computer Vision course.
 | Semester | Spring 2026 |
 | Instructor | Mubasher Baig |
 | Student | Ali Ahmad — Roll No. 23L-2619 |
-
-The full technical report covering algorithm design rationale, parameter analysis, and per-test evaluation is available in [`report/cv_project_tracking_report.pdf`](report/cv_project_tracking_report.pdf).
 
 ---
 
@@ -566,9 +509,7 @@ If you use this project in your research or coursework, please cite it as:
 
 ## Contributing
 
-Contributions are welcome in the form of bug reports, parameter tuning suggestions, platform compatibility fixes, and documentation improvements. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request.
-
-Note: this project is intentionally classical CV only — no deep learning dependencies will be accepted.
+Contributions are welcome in the form of bug reports, parameter tuning suggestions, platform compatibility fixes, and documentation improvements. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a pull request. This project is intentionally classical CV only — no deep learning dependencies will be accepted.
 
 ---
 
@@ -578,6 +519,4 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) for full 
 
 ---
 
-<p align="center">
-  <a href="https://github.com/whozahm3d">Ali Ahmad</a> · FAST-NUCES Lahore · Spring 2026
-</p>
+*Ali Ahmad · FAST-NUCES Lahore · Spring 2026 · [github.com/whozahm3d](https://github.com/whozahm3d)*
