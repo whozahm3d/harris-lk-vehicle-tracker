@@ -1,0 +1,9 @@
+# Test 2 — Tracked Output
+
+Tracked output for the surveillance footage sequence (529 frames @ 30 fps, 3840×2160).
+
+The oblique camera angle exposes the car's side panels, windows, and wheel arches, yielding
+137 stable corners held throughout all 529 frames. Velocity prediction keeps the bounding
+box tracking cleanly through the exit phase with no tracker dropout.
+
+📹 [Watch tracked output video](https://drive.google.com/file/d/1OiG0_IWjwq9rcKeRFJSjKQnPth0Rbivf/view?usp=drive_link)
