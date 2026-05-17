@@ -129,26 +129,30 @@ The trajectory maps the car's actual route: straight road section → right-angl
 | Redetection Events | Multiple (survival-triggered, all recovered) |
 | Processing Rate | ~1.63 fps (CPU only) |
 
+📹 [Watch Test 1 tracked output](https://drive.google.com/file/d/1EheOdcVkypPqcQ7VYE4Da-vSjgtPNRHZ/view?usp=drive_link)
+
 ---
 
 ### Test 2 — Oblique Drone Surveillance
 
 **Sequence:** 3840×2160 · 30 fps · 529 frames | **Challenge:** Vehicle exits frame with degrading point visibility | **Fix applied:** Velocity prediction + exit-phase threshold
 
-Tracking a vehicle across a rural road from an oblique angle. The perspective reveals the car's side panels, windows, and wheel arches — yielding 201 stable corners sustained across the entire 529-frame sequence without a single redetection event.
+Tracking a vehicle across a rural road from an oblique angle. The perspective reveals the car's side panels, windows, and wheel arches — yielding 137 stable corners sustained across the entire 529-frame sequence without a single redetection event.
 
 ![Test 2 — Tracking Output](results/test_2_20260516_170555/plots/integration_snapshots.png)
 
 | Metric | Value |
 |--------|-------|
 | Total Frames Processed | 529 / 529 (100%) |
-| Avg Corners / Frame | 201.0 |
-| Min / Max Corners | 201 / 201 |
+| Avg Corners / Frame | 137.0 |
+| Min / Max Corners | 137 / 137 |
 | Tracker Stability | ✅ 100% |
 | Redetection Events | None |
 | Processing Rate | ~1.25 fps (CPU only) |
 
-Point count held constant at 201 across every frame — no redetection triggered, no velocity fallback invoked. A clean, uninterrupted optical flow sequence from start to finish.
+Point count held constant at 137 across every frame — no redetection triggered, no velocity fallback invoked. A clean, uninterrupted optical flow sequence from start to finish.
+
+📹 [Watch Test 2 tracked output](https://drive.google.com/file/d/1OiG0_IWjwq9rcKeRFJSjKQnPth0Rbivf/view?usp=drive_link)
 
 ---
 
@@ -205,8 +209,8 @@ harris-lk-vehicle-tracker/
 │   ├── phase4_results.ipynb          # Evaluation metrics, plots, analysis
 │   └── phase5_integration.ipynb      # Full end-to-end pipeline — primary entry point
 │
-├── videos/                       # Place test videos here — excluded from repo (.gitignore)
-│   └── test_1 and test_2         # Placeholder describing the original test sequences
+├── video/                        # Place test videos here — excluded from repo (.gitignore)
+│   └── README.md                 # Describes the original test sequences and why videos are excluded
 │
 ├── results/                      # Auto-generated on every run — plots, metrics, logs, and params committed
 │   └── */videos/*_tracked.mp4    # ⚠ Tracked output videos excluded from repo (*.mp4 in .gitignore)
@@ -266,10 +270,10 @@ Required for H.264 MP4 output via OpenCV on Windows. Download `openh264-1.8.0-wi
 
 **5. Add your test video**
 
-Place your video file inside the `videos/` folder. The folder already exists with a placeholder file (`test_1 and test_2`) describing the original test sequences — the actual video files are excluded due to size.
+Place your video file inside the `video/` folder. The folder already exists with a `README.md` describing the original test sequences — the actual video files are excluded due to size.
 
 ```
-videos/
+video/
 └── your_video.mp4
 ```
 
@@ -283,9 +287,9 @@ Only three fields change between videos. Everything else uses the defaults.
 
 ```yaml
 input:
-  source: "C:\\path\\to\\your\\videos\\test_1.mp4"   # Full path to your video file
-  start_frame: 0                                       # Frame index to begin tracking from
-  bbox: [x, y, width, height]                          # Bounding box in full-resolution pixels
+  source: "C:\\path\\to\\your\\video\\test_1.mp4"   # Full path to your video file
+  start_frame: 0                                      # Frame index to begin tracking from
+  bbox: [x, y, width, height]                         # Bounding box in full-resolution pixels
 ```
 
 > **Windows path note:** Use double backslashes (`\\`) or forward slashes (`/`). Single backslashes will fail silently.
@@ -430,13 +434,13 @@ The path in `config.yaml` is wrong or the file does not exist at that location.
 
 ```yaml
 # Correct — double backslashes on Windows
-source: "C:\\Users\\yourname\\harris-lk-vehicle-tracker\\videos\\test_1.mp4"
+source: "C:\\Users\\yourname\\harris-lk-vehicle-tracker\\video\\test_1.mp4"
 
 # Also correct — forward slashes work on Windows
-source: "C:/Users/yourname/harris-lk-vehicle-tracker/videos/test_1.mp4"
+source: "C:/Users/yourname/harris-lk-vehicle-tracker/video/test_1.mp4"
 
 # Wrong — single backslashes will silently fail
-source: "C:\Users\yourname\videos\test_1.mp4"
+source: "C:\Users\yourname\video\test_1.mp4"
 ```
 
 **`AttributeError: module 'ctypes' has no attribute 'windll'`**
